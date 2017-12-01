@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>weex-vue-demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <meta name="format-detection" content="telephone=no, email=no">
+    <!-- <style>body > div { height: 100%; }</style> -->
+    <style>body::before {
+        content: "1";
+        height: 1px;
+        overflow: hidden;
+        color: transparent;
+        display: block;
+    }</style>
+    <script src="/lib/vue.runtime.js"></script>
+    <script src="/lib/weex-vue-render.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script>
+    (function () {
+        function getUrlParam (key) {
+            var reg = new RegExp('[?|&]' + key + '=([^&]+)')
+            var match = location.search.match(reg)
+            if (match && match[1].indexOf('webview.js') > -1) {
+                return match[1].substring(0, match[1].indexOf('webview.js')) + 'webview.js'
+            }
+            return match && match[1]
+        }
+        var page = getUrlParam('page') || '/views/home/home.js'
+        var bundle = document.createElement('script')
+        // only for web
+        bundle.src = page.replace(/\.js$/, '.web.js')
+        document.body.appendChild(bundle)
+    })()
+</script>
+</body>
+</html>
