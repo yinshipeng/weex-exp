@@ -1,18 +1,20 @@
-import storage from '../storage'
 import { objectToUrlParams } from '../utils'
 const stream = weex.requireModule('stream')
 
-const baseUrl = 'http://localhost:8081/api'
-let _callback;
+/**
+ * API基础域名
+ * @type {string}
+ */
+const baseUrl = 'http://192.168.21.126:3000'
 
 /**
- * 设置请求对象
+ * 请求参数设置
  * @param method
  * @param url
- * @param fn
  * @param body
+ * @returns {{headers: {Content-Type: string}, method: *, url: string, type: string, body}}
  */
-const config = function (method, url='', fn, body={}) {
+const getRequestBody = function (method, url='', body={}) {
     let requestBody = {
         headers: {
             "Content-Type": "application/json"
@@ -22,45 +24,37 @@ const config = function (method, url='', fn, body={}) {
         type: "json",
         body: JSON.stringify(body)
     }
-    storage.getItem('token', (res)=>{
-        const token = res.data
-        requestBody.headers['x-auth-token'] = token
-        fn(requestBody)
-    })
+    return requestBody
 }
 
 /**
- * 发送请求
- * @param requestBody
+ * 发送请求并返回结果
+ * Tip: 对回调函数中的请求结果可以进一步封装用于错误处理
+ * @param body
+ * @returns {Promise.<*>}
  */
-const sendRequest = function (requestBody) {
-    stream.fetch(requestBody,(res)=>{
-        handleResult(res)
+async function sendRequest (body) {
+    let result = await new Promise(function (resolve, reject) {
+        stream.fetch(body,(res)=>{
+            if(res.status == 200){
+                resolve(res.data)
+            }else {
+                reject()
+            }
+        })
     })
+    return result
 }
 
-/**
- * 处理请求结果
- * @param res
- */
-function handleResult (res) {
-    if(res.status == 200){
-        _callback(res.data)
-    }else{
-        /**
-         * 对于异常处理，可以根据接口规范和不同平台设计不同的处理方式
-         */
-    }
-}
 
 export default {
-    get(url, body, callback){
-        _callback = callback
+    get(url, body){
         url += objectToUrlParams(body)
-        config('GET', url, sendRequest)
+        body = getRequestBody('GET', url, body)
+        return sendRequest(body)
     },
-    post(url, body, callback){
-        _callback = callback
-        config('POST', url, sendRequest, body)
+    post(url, body){
+        body = getRequestBody('POST', url, body)
+        return sendRequest(body)
     }
 }

@@ -38,6 +38,7 @@
     import Block1 from '../../components/Block1.vue'
     import Block2 from '../../components/Block2.vue'
     import Block3 from '../../components/Block3.vue'
+    import { readNews } from '../../service/news.service'
     export default {
         data () {
             return {
@@ -140,6 +141,14 @@
             Block1,
             Block2,
             Block3
+        },
+        created(){
+            /**
+             * 接口请求测试函数
+             */
+            readNews().then(function (data) {
+                console.log(data)
+            })
         }
     }
 </script>
